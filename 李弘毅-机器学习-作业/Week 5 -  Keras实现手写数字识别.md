@@ -47,63 +47,12 @@ xxxx     unsigned byte   ??               pixel
 32 bit integer
 .由[offset]我们可以看出真正的pixel是从0016开始的，一个int 32位，所以在读取pixel之前我们要读取4个 32 bit integer，也就是magic number, number of images, number of rows, number of columns. 当然，在这里使用struct.unpack_from()会比较方便.
 
+
 ### 算法实现
-import keras
-from keras.datasets import mnist
-from keras.models import Sequential
-from keras.layers import Dense, Dropout
-from keras.optimizers import RMSprop
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import numpy as np
-
-
-def load_data():
-    #  通过keras自带的mnist工具包加载数据
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    showimage(x_train[0])
-    x_train = x_train.reshape(60000, 784).astype('float32')
-    x_test = x_test.reshape(10000, 784).astype('float32')
-    #  数据归一化 Min-Max归一化
-    x_train /= 255
-    x_test /= 255
-    # 转换成one-hot编码
-    y_train = keras.utils.to_categorical(y_train, 10)
-    y_test = keras.utils.to_categorical(y_test, 10)
-    return (x_train, y_train), (x_test, y_test)
-
-
-# 可视化手写数字图片
-def showimage(imagedata):
-    fig = plt.figure(figsize=(12, 12))
-    ax1 = fig.add_subplot(111)
-    ax1.imshow(imagedata, cmap='gray')
-    width, height = imagedata.shape
-    thresh = imagedata.max() / 2.5
-    for x in range(width):
-        for y in range(height):
-            ax1.annotate(str(round(imagedata[x][y], 2)), xy=(y, x), horizontalalignment='center',
-                         verticalalignment='center',
-                         color='white' if imagedata[x][y] < thresh else 'black')
-    plt.show()
-
-
-(x_train, y_train), (x_test, y_test) = load_data()
-# 初始化参数
-batch_size = 128
-num_classes = 10
-epochs = 20
-
-model = Sequential()
-model.add(Dense(512, activation='relu', input_shape=(784,)))
-model.add(Dropout(0.2))
-model.add(Dense(512, activation='relu'))
-model.add(Dropout(0.2))
-model.add(Dense(num_classes, activation='softmax'))
-model.summary()
-model.compile(loss='categorical_crossentropy', optimizer=RMSprop(), metrics=['accuracy'])
-history = model.fit(x_train, y_train, batch_size=batch_size,
-                    epochs=epochs, verbose=1, validation_data=(x_test, y_test))
-score = model.evaluate(x_test, y_test, verbose=0)
-print('Test loss:', score[0])
-print('Test accuracy:', score[1])
+1.加载MNIST数据集
+2.可视化手写数字图片观察
+3.将数据进行归一化处理和类型转换
+4.将标签数据进行one-hot编码
+5.模型定义和编译设置，包括层数、神经元数、损失函数、优化算法等
+6.训练模型
+7.模型预测与评估
